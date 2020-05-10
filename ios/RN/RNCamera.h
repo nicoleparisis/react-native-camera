@@ -4,6 +4,7 @@
 #import <UIKit/UIKit.h>
 
 #import "FaceDetectorManagerMlkit.h"
+#import "HandDetectorManager.h"
 #import "BarcodeDetectorManagerMlkit.h"
 #import "TextDetectorManager.h"
 
@@ -42,6 +43,7 @@
 @property(nonatomic, assign) BOOL isReadingBarCodes;
 @property(nonatomic, assign) BOOL isRecordingInterrupted;
 @property(nonatomic, assign) BOOL isDetectingFaces;
+@property(nonatomic, assign) BOOL isDetectingHand;
 @property(nonatomic, assign) BOOL canReadText;
 @property(nonatomic, assign) BOOL canDetectFaces;
 @property(nonatomic, assign) BOOL canDetectHand;
