@@ -97,6 +97,7 @@
 - (void)setupOrDisableBarcodeScanner;
 - (void)setupOrDisableTextDetector;
 - (void)setupOrDisableFaceDetector;
+- (void)setupOrDisableHandDetector;
 - (void)setupOrDisableBarcodeDetector;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;

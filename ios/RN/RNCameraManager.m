@@ -285,21 +285,6 @@ RCT_CUSTOM_VIEW_PROPERTY(HandDetectorEnabled, BOOL, RNCamera)
     [view setupOrDisableHandDetector];
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(handDetectionMode, NSInteger, RNCamera)
-{
-    [view updateHandDetectionMode:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(handDetectionLandmarks, NSString, RNCamera)
-{
-    [view updateHandDetectionLandmarks:json];
-}
-
-RCT_CUSTOM_VIEW_PROPERTY(handDetectionClassifications, NSString, RNCamera)
-{
-    [view updateHandDetectionClassifications:json];
-}
-
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)
 {
 

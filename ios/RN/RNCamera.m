@@ -2137,21 +2137,6 @@ BOOL _sessionInterrupted = NO;
     [self.handDetector setTracking:requestedTracking queue:self.sessionQueue];
 }
 
-- (void)updateHandDetectionMode:(id)requestedMode
-{
-    [self.handDetector setPerformanceMode:requestedMode queue:self.sessionQueue];
-}
-
-- (void)updateHandDetectionLandmarks:(id)requestedLandmarks
-{
-    [self.handDetector setLandmarksMode:requestedLandmarks queue:self.sessionQueue];
-}
-
-- (void)updateHandDetectionClassifications:(id)requestedClassifications
-{
-    [self.handDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];
-}
-
 - (void)onHandDetected:(NSDictionary *)event
 {
     if (_onHandDetected && _session) {
