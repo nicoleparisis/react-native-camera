@@ -57,5 +57,5 @@ Pod::Spec.new do |s|
   s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'
 
   s.dependency 'React'
-  s.dependency "OpenCV2"
+  s.dependency 'OpenCV2', '~> 4.3'
 end
