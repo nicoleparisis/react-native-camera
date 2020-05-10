@@ -241,7 +241,7 @@
     return false;
 }
 
-- (NSArray *)findhandInFrame:(UIImage *)image
+- (NSArray *)findHandInFrame:(UIImage *)image
                        scaleX:(float)scaleX
                        scaleY:(float)scaleY
                        completed:(void (^)(NSArray *result))completed;
