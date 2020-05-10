@@ -3,10 +3,11 @@
 #else
 #import <React/RCTBridgeModule.h>
 #endif
-
+#import <opencv2/opencv.hpp>
 #import <opencv2/imgproc/imgproc.hpp>
 #import <opencv2/video/video.hpp>
 #import <opencv2/videoio/videoio.hpp>
+#import <opencv2/imgcodecs/ios.h>
 
 @interface HandDetectorManager : NSObject <RCTBridgeModule>
 typedef void (^postRecognitionBlock)(NSArray *hand);
