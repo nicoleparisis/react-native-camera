@@ -50,11 +50,12 @@ Pod::Spec.new do |s|
     ss.dependency 'Firebase/MLVision'
     ss.dependency 'Firebase/MLVisionBarcodeModel'
   end
-  
-  s.dependency "libopencv-contrib", "~> 3.4.1"
+
+
   s.default_subspecs = "RN", "RCT"
 
   s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'
 
   s.dependency 'React'
+  s.dependency "OpenCV2"
 end

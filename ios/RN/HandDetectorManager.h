@@ -8,6 +8,11 @@
 #import <opencv2/video/video.hpp>
 #import <opencv2/videoio/videoio.hpp>
 #import <opencv2/imgcodecs/ios.h>
+#include <opencv2/opencv.hpp>
+#include <opencv2/videoio/cap_ios.h>
+#include <opencv2/face.hpp>
+#include <opencv2/imgcodecs/ios.h>
+using namespace cv;
 
 @interface HandDetectorManager : NSObject <RCTBridgeModule>
 typedef void (^postRecognitionBlock)(NSArray *hand);
