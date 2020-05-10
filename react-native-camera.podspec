@@ -36,6 +36,13 @@ Pod::Spec.new do |s|
     ss.dependency 'Firebase/MLVision'
     ss.dependency 'Firebase/MLVisionFaceModel'
   end
+
+  s.subspec "FaceDetectorMLKit" do |ss|
+    ss.dependency 'react-native-camera/RN'
+    ss.dependency 'react-native-camera/RCT'
+    ss.dependency 'Firebase/MLVision'
+    ss.dependency 'Firebase/MLVisionFaceModel'
+  end
   
   s.subspec "BarcodeDetectorMLKit" do |ss|
     ss.dependency 'react-native-camera/RN'
@@ -43,7 +50,8 @@ Pod::Spec.new do |s|
     ss.dependency 'Firebase/MLVision'
     ss.dependency 'Firebase/MLVisionBarcodeModel'
   end
-
+  
+  s.dependency "libopencv-contrib", "~> 3.4.1"
   s.default_subspecs = "RN", "RCT"
 
   s.preserve_paths = 'LICENSE', 'README.md', 'package.json', 'index.js'
