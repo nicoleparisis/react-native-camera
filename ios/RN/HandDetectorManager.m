@@ -23,24 +23,6 @@
   return true;
 }
 
-+ (NSDictionary *)constants
-{
-    return @{
-             @"Mode" : @{
-                     @"fast" : @(RNHandDetectionFastMode),
-                     @"accurate" : @(RNHandDetectionAccurateMode)
-                     },
-             @"Landmarks" : @{
-                     @"all" : @(RNHandDetectAllLandmarks),
-                     @"none" : @(RNHandDetectNoLandmarks)
-                     },
-             @"Classifications" : @{
-                     @"all" : @(RNHandRunAllClassifications),
-                     @"none" : @(RNHandRunNoClassifications)
-                     }
-             };
-}
-
 - (void)setTracking:(id)json queue:(dispatch_queue_t)sessionQueue 
 {
   BOOL requestedValue = [RCTConvert BOOL:json];

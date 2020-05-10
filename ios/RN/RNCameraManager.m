@@ -77,7 +77,6 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
              @"FaceDetection" : [[self class] faceDetectorConstants],
-             @"HandDetection" : [[self class] handDetectorConstants],
              @"VideoStabilization": [[self class] validVideoStabilizationModes],
              @"GoogleVisionBarcodeDetection": @{
                  @"BarcodeType": [[self class] barcodeDetectorConstants],
