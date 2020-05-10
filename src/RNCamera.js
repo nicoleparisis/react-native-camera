@@ -905,6 +905,7 @@ const RNCamera = requireNativeComponent('RNCamera', Camera, {
     barCodeScannerEnabled: true,
     googleVisionBarcodeDetectorEnabled: true,
     faceDetectorEnabled: true,
+    handDetectorEnabled: true,
     textRecognizerEnabled: true,
     importantForAccessibility: true,
     onBarCodeRead: true,
