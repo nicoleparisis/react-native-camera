@@ -53,11 +53,13 @@ export default class CameraScreen extends React.Component {
     },
     isRecording: false,
     canDetectFaces: false,
+    canDetectHand: false,
     canDetectText: false,
     canDetectBarcode: false,
     faces: [],
     textBlocks: [],
     barcodes: [],
+    hand:[]
   };
 
   toggleFacing() {
@@ -151,6 +153,7 @@ export default class CameraScreen extends React.Component {
   toggle = value => () => this.setState(prevState => ({ [value]: !prevState[value] }));
 
   facesDetected = ({ faces }) => this.setState({ faces });
+  handDetected = ({ hand }) => this.setState({ hand });
 
   renderFace = ({ bounds, faceID, rollAngle, yawAngle }) => (
     <View
@@ -307,7 +310,7 @@ export default class CameraScreen extends React.Component {
   }
 
   renderCamera() {
-    const { canDetectFaces, canDetectText, canDetectBarcode } = this.state;
+    const { canDetectFaces, canDetectText, canDetectBarcode, canDetectHand } = this.state;
 
     const drawFocusRingPosition = {
       top: this.state.autoFocusPoint.drawRectPosition.y - 32,
@@ -343,6 +346,7 @@ export default class CameraScreen extends React.Component {
         }
         onFacesDetected={canDetectFaces ? this.facesDetected : null}
         onTextRecognized={canDetectText ? this.textRecognized : null}
+        onHandDetected={canDetectHand ? this.handDetected : null}
         onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}
       >
         <View style={StyleSheet.absoluteFill}>

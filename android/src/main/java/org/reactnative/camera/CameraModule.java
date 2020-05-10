@@ -125,6 +125,40 @@ public class CameraModule extends ReactContextBaseJavaModule {
             });
           }
         }));
+        put("HandDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
+          {
+            put("Mode", getHandDetectionModeConstants());
+            put("Landmarks", getHandDetectionLandmarksConstants());
+            put("Classifications", getHandDetectionClassificationsConstants());
+          }
+
+          private Map<String, Object> getHandDetectionModeConstants() {
+            return Collections.unmodifiableMap(new HashMap<String, Object>() {
+              {
+                put("fast", RNHandDetector.FAST_MODE);
+                put("accurate", RNHandDetector.ACCURATE_MODE);
+              }
+            });
+          }
+
+          private Map<String, Object> getHandDetectionClassificationsConstants() {
+            return Collections.unmodifiableMap(new HashMap<String, Object>() {
+              {
+                put("all", RNHandDetector.ALL_CLASSIFICATIONS);
+                put("none", RNHandDetector.NO_CLASSIFICATIONS);
+              }
+            });
+          }
+
+          private Map<String, Object> getHandDetectionLandmarksConstants() {
+            return Collections.unmodifiableMap(new HashMap<String, Object>() {
+              {
+                put("all", RNHandDetector.ALL_LANDMARKS);
+                put("none", RNHandDetector.NO_LANDMARKS);
+              }
+            });
+          }
+        }));
         put("GoogleVisionBarcodeDetection", Collections.unmodifiableMap(new HashMap<String, Object>() {
           {
             put("BarcodeType", BarcodeFormatUtils.REVERSE_FORMATS);

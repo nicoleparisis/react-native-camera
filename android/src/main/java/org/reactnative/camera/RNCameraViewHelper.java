@@ -271,6 +271,32 @@ public class RNCameraViewHelper {
     });
   }
 
+   // Hand detection events
+
+   public static void emitHandDetectedEvent(final ViewGroup view, final WritableArray data) {
+
+    final ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.runOnNativeModulesQueueThread(new Runnable() {
+      @Override
+      public void run() {
+        HandDetectedEvent event = HandDetectedEvent.obtain(view.getId(), data);
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+     });
+  }
+
+  public static void emitHandDetectionErrorEvent(final ViewGroup view, final RNHandDetector handDetector) {
+
+    final ReactContext reactContext = (ReactContext) view.getContext();
+    reactContext.runOnNativeModulesQueueThread(new Runnable() {
+      @Override
+      public void run() {
+        HandDetectionErrorEvent event = HandDetectionErrorEvent.obtain(view.getId(), handDetector);
+        reactContext.getNativeModule(UIManagerModule.class).getEventDispatcher().dispatchEvent(event);
+      }
+    });
+  }
+
   // Barcode detection events
 
   public static void emitBarcodesDetectedEvent(final ViewGroup view, final WritableArray barcodes) {

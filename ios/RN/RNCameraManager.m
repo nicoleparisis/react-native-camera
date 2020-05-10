@@ -18,6 +18,7 @@ RCT_EXPORT_VIEW_PROPERTY(onAudioConnected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onMountError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onFacesDetected, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onHandDetected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onGoogleVisionBarcodesDetected, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureTaken, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onPictureSaved, RCTDirectEventBlock);
@@ -76,6 +77,7 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
              @"VideoCodec": [[self class] validCodecTypes],
              @"BarCodeType" : [[self class] validBarCodeTypes],
              @"FaceDetection" : [[self class] faceDetectorConstants],
+             @"HandDetection" : [[self class] handDetectorConstants],
              @"VideoStabilization": [[self class] validVideoStabilizationModes],
              @"GoogleVisionBarcodeDetection": @{
                  @"BarcodeType": [[self class] barcodeDetectorConstants],
@@ -85,7 +87,7 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSInteger);
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged"];
+    return @[@"onCameraReady", @"onAudioInterrupted", @"onAudioConnected", @"onMountError", @"onBarCodeRead", @"onHandDetected", @"onFacesDetected", @"onPictureTaken", @"onPictureSaved", @"onRecordingStart", @"onRecordingEnd", @"onTextRecognized", @"onGoogleVisionBarcodesDetected", @"onSubjectAreaChanged"];
 }
 
 + (NSDictionary *)validCodecTypes
@@ -276,6 +278,27 @@ RCT_CUSTOM_VIEW_PROPERTY(faceDetectionLandmarks, NSString, RNCamera)
 RCT_CUSTOM_VIEW_PROPERTY(faceDetectionClassifications, NSString, RNCamera)
 {
     [view updateFaceDetectionClassifications:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(HandDetectorEnabled, BOOL, RNCamera)
+{
+    view.canDetectHand = [RCTConvert BOOL:json];
+    [view setupOrDisableHandDetector];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(handDetectionMode, NSInteger, RNCamera)
+{
+    [view updateHandDetectionMode:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(handDetectionLandmarks, NSString, RNCamera)
+{
+    [view updateHandDetectionLandmarks:json];
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(handDetectionClassifications, NSString, RNCamera)
+{
+    [view updateHandDetectionClassifications:json];
 }
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeScannerEnabled, BOOL, RNCamera)

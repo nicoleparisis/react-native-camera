@@ -19,6 +19,7 @@
 @property (nonatomic, strong) id textDetector;
 @property (nonatomic, strong) id faceDetector;
 @property (nonatomic, strong) id barcodeDetector;
+@property (nonatomic, strong) id handDetector;
 
 @property (nonatomic, copy) RCTDirectEventBlock onCameraReady;
 @property (nonatomic, copy) RCTDirectEventBlock onAudioInterrupted;
@@ -27,6 +28,7 @@
 @property (nonatomic, copy) RCTDirectEventBlock onBarCodeRead;
 @property (nonatomic, copy) RCTDirectEventBlock onTextRecognized;
 @property (nonatomic, copy) RCTDirectEventBlock onFacesDetected;
+@property (nonatomic, copy) RCTDirectEventBlock onHandDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onGoogleVisionBarcodesDetected;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureTaken;
 @property (nonatomic, copy) RCTDirectEventBlock onPictureSaved;
@@ -38,6 +40,7 @@
 @property (nonatomic, copy) NSDate *startText;
 @property (nonatomic, copy) NSDate *startFace;
 @property (nonatomic, copy) NSDate *startBarcode;
+@property (nonatomic, copy) NSDate *startHand;
 
 @property (nonatomic, copy) RCTDirectEventBlock onSubjectAreaChanged;
 @property (nonatomic, assign) BOOL isFocusedOnPoint;
@@ -69,6 +72,7 @@ BOOL _sessionInterrupted = NO;
         self.startText = [NSDate date];
         self.startFace = [NSDate date];
         self.startBarcode = [NSDate date];
+        self.startHand = [NSDate date];
 #if !(TARGET_IPHONE_SIMULATOR)
         self.previewLayer =
         [AVCaptureVideoPreviewLayer layerWithSession:self.session];
@@ -1936,7 +1940,7 @@ BOOL _sessionInterrupted = NO;
     self.orientation = nil;
     self.isRecordingInterrupted = NO;
 
-    if ([self.textDetector isRealDetector] || [self.faceDetector isRealDetector]) {
+    if ([self.textDetector isRealDetector] || [self.faceDetector isRealDetector] || [self.handDetector isRealDetector]) {
         [self cleanupMovieFileCapture];
     }
 
@@ -1946,6 +1950,10 @@ BOOL _sessionInterrupted = NO;
 
     if ([self.faceDetector isRealDetector]) {
         [self setupOrDisableFaceDetector];
+    }
+
+    if ([self.handDetector isRealDetector]) {
+        [self setupOrDisableHandDetector];
     }
 
     if ([self.barcodeDetector isRealDetector]) {
@@ -2077,6 +2085,80 @@ BOOL _sessionInterrupted = NO;
     }
 }
 
+# pragma mark - HandDetection
+
+-(id)createHandDetector
+{
+    Class HandDetectorManagerClass = NSClassFromString(@"HandDetectorManager");
+    return [[HandDetectorManagerClass alloc] init];
+}
+
+- (void)setupOrDisableHandDetector
+{
+    if (self.canDetectHand && [self.handDetector isRealDetector]){
+        AVCaptureSessionPreset preset = [self getDefaultPresetVideo];
+
+        self.session.sessionPreset = preset;
+        if (!self.videoDataOutput) {
+            self.videoDataOutput = [[AVCaptureVideoDataOutput alloc] init];
+            if (![self.session canAddOutput:_videoDataOutput]) {
+                NSLog(@"Failed to setup video data output");
+                [self stopHandDetection];
+                return;
+            }
+
+            NSDictionary *rgbOutputSettings = [NSDictionary
+                dictionaryWithObject:[NSNumber numberWithInt:kCMPixelFormat_32BGRA]
+                                forKey:(id)kCVPixelBufferPixelFormatTypeKey];
+            [self.videoDataOutput setVideoSettings:rgbOutputSettings];
+            [self.videoDataOutput setAlwaysDiscardsLateVideoFrames:YES];
+            [self.videoDataOutput setSampleBufferDelegate:self queue:self.sessionQueue];
+            [self.session addOutput:_videoDataOutput];
+        }
+    } else {
+        [self stopHandDetection];
+    }
+}
+
+- (void)stopHandDetection
+{
+    if (self.videoDataOutput && !self.canReadText) {
+        [self.session removeOutput:self.videoDataOutput];
+    }
+    self.videoDataOutput = nil;
+    AVCaptureSessionPreset preset = [self getDefaultPreset];
+    if (self.session.sessionPreset != preset) {
+        [self updateSessionPreset: preset];
+    }
+}
+
+- (void)updateTrackingHandEnabled:(id)requestedTracking
+{
+    [self.handDetector setTracking:requestedTracking queue:self.sessionQueue];
+}
+
+- (void)updateHandDetectionMode:(id)requestedMode
+{
+    [self.handDetector setPerformanceMode:requestedMode queue:self.sessionQueue];
+}
+
+- (void)updateHandDetectionLandmarks:(id)requestedLandmarks
+{
+    [self.handDetector setLandmarksMode:requestedLandmarks queue:self.sessionQueue];
+}
+
+- (void)updateHandDetectionClassifications:(id)requestedClassifications
+{
+    [self.handDetector setClassificationMode:requestedClassifications queue:self.sessionQueue];
+}
+
+- (void)onHandDetected:(NSDictionary *)event
+{
+    if (_onHandDetected && _session) {
+        _onHandDetected(event);
+    }
+}
+
 # pragma mark - BarcodeDetectorMlkit
 
 -(id)createBarcodeDetectorMlKit
@@ -2194,10 +2276,12 @@ BOOL _sessionInterrupted = NO;
     NSTimeInterval timePassedSinceSubmittingForText = [methodFinish timeIntervalSinceDate:self.startText];
     NSTimeInterval timePassedSinceSubmittingForFace = [methodFinish timeIntervalSinceDate:self.startFace];
     NSTimeInterval timePassedSinceSubmittingForBarcode = [methodFinish timeIntervalSinceDate:self.startBarcode];
+     NSTimeInterval timePassedSinceSubmittingForHand = [methodFinish timeIntervalSinceDate:self.startHand];
     BOOL canSubmitForTextDetection = timePassedSinceSubmittingForText > 0.5 && _finishedReadingText && self.canReadText && [self.textDetector isRealDetector];
     BOOL canSubmitForFaceDetection = timePassedSinceSubmittingForFace > 0.5 && _finishedDetectingFace && self.canDetectFaces && [self.faceDetector isRealDetector];
+    BOOL canSubmitForHandDetection = timePassedSinceSubmittingForHand > 0.5 && _finishedDetectingHand && self.canDetectHand && [self.handDetector isRealDetector];
     BOOL canSubmitForBarcodeDetection = timePassedSinceSubmittingForBarcode > 0.5 && _finishedDetectingBarcodes && self.canDetectBarcodes && [self.barcodeDetector isRealDetector];
-    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection) {
+    if (canSubmitForFaceDetection || canSubmitForTextDetection || canSubmitForBarcodeDetection || canSubmitForHandDetection) {
         CGSize previewSize = CGSizeMake(_previewLayer.frame.size.width, _previewLayer.frame.size.height);
         NSInteger position = self.videoCaptureDeviceInput.device.position;
         UIImage *image = [RNCameraUtils convertBufferToUIImage:sampleBuffer previewSize:previewSize position:position];
@@ -2233,6 +2317,16 @@ BOOL _sessionInterrupted = NO;
                 NSDictionary *eventBarcode = @{@"type" : @"barcode", @"barcodes" : barcodes};
                 [self onBarcodesDetected:eventBarcode];
                 self.finishedDetectingBarcodes = true;
+            }];
+        }
+        // find hand
+        if (canSubmitForHandDetection) {
+            _finishedDetectingHand = false;
+            self.startHand = [NSDate date];
+            [self.handDetector findHandInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * hand) {
+                NSDictionary *eventHand = @{@"type" : @"hand", @"fingers" : hand};
+                [self onHandDetected:eventHand];
+                self.finishedDetectingHand = true;
             }];
         }
     }

@@ -96,13 +96,11 @@ type RecordAudioPermissionStatus = Readonly<
     NOT_AUTHORIZED: 'NOT_AUTHORIZED';
   }>
 >;
-type FaCC = (
-  params: {
-    camera: RNCamera;
-    status: keyof CameraStatus;
-    recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
-  },
-) => JSX.Element;
+type FaCC = (params: {
+  camera: RNCamera;
+  status: keyof CameraStatus;
+  recordAudioPermissionStatus: keyof RecordAudioPermissionStatus;
+}) => JSX.Element;
 
 export interface Constants {
   CameraStatus: CameraStatus;
@@ -117,6 +115,11 @@ export interface Constants {
     Classifications: FaceDetectionClassifications;
     Landmarks: FaceDetectionLandmarks;
     Mode: FaceDetectionMode;
+  };
+  HandDetection: {
+    Classifications: HandDetectionClassifications;
+    Landmarks: HandDetectionLandmarks;
+    Mode: HandDetectionMode;
   };
   GoogleVisionBarcodeDetection: {
     BarcodeType: GoogleVisionBarcodeType;
@@ -171,7 +174,7 @@ export interface RNCameraProps {
   onAudioInterrupted?(): void;
   onAudioConnected?(): void;
   /** Use native pinch to zoom implementation*/
-  useNativeZoom?:boolean;
+  useNativeZoom?: boolean;
   /** Value: float from 0 to 1.0 */
   zoom?: number;
   /** iOS only. float from 0 to any. Locks the max zoom value to the provided value
@@ -212,6 +215,14 @@ export interface RNCameraProps {
   faceDetectionLandmarks?: keyof FaceDetectionLandmarks;
   faceDetectionClassifications?: keyof FaceDetectionClassifications;
   trackingEnabled?: boolean;
+
+  // -- HAND DETECTION PROPS
+
+  onHandDetected?(response: { hand: Hand[] }): void;
+  onHandDetectionError?(response: { isOperational: boolean }): void;
+  handDetectionMode?: keyof HandDetectionMode;
+  handDetectionLandmarks?: keyof HandDetectionLandmarks;
+  handDetectionClassifications?: keyof HandDetectionClassifications;
 
   onTextRecognized?(response: { textBlocks: TrackedTextFeature[] }): void;
   // -- ANDROID ONLY PROPS
@@ -369,6 +380,25 @@ export interface Face {
   yawAngle?: number;
   rollAngle?: number;
 }
+export interface Hand {
+  handID?: number;
+  bounds: {
+    size: Size;
+    origin: Point;
+  };
+  fingers: Finger[];
+}
+export interface Finger {
+  name: string;
+  bounds: {
+    size: Size;
+    origin: Point;
+  };
+  nailBounds: {
+    size: Size;
+    origin: Point;
+  };
+}
 
 export interface TrackedTextFeatureRecursive {
   type: 'block' | 'line' | 'element';
@@ -463,11 +493,21 @@ interface DetectionOptions {
   detectLandmarks?: keyof FaceDetectionLandmarks;
   runClassifications?: keyof FaceDetectionClassifications;
 }
+interface DetectionOptionsHand {
+  mode?: keyof HandDetectionMode;
+  detectLandmarks?: keyof HandDetectionLandmarks;
+  runClassifications?: keyof HandDetectionClassifications;
+}
 
 export class FaceDetector {
   private constructor();
   static Constants: Constants['FaceDetection'];
   static detectFacesAsync(uri: string, options?: DetectionOptions): Promise<Face[]>;
+}
+export class HandDetector {
+  private constructor();
+  static Constants: Constants['HandDetection'];
+  static detectHandAsync(uri: string, options?: DetectionOptionsHand): Promise<Hand[]>;
 }
 
 // -- DEPRECATED CONTENT BELOW

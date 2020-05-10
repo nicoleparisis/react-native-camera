@@ -130,6 +130,23 @@ type TrackedTextFeature = {
   components: Array<TrackedTextFeature>,
 };
 
+type TrackedHandFeature = {
+  type: string,
+  bounds: {
+    size: {
+      width: number,
+      height: number,
+    },
+    origin: {
+      x: number,
+      y: number,
+    },
+  },
+  nails?: Nail[],
+  value: string,
+  components: Array<TrackedHandFeature>,
+};
+
 type TrackedBarcodeFeature = {
   bounds: {
     size: {
@@ -210,6 +227,18 @@ type BarcodeType =
   | 'PRODUCT'
   | 'URL';
 
+type Nail = {
+  bounds: {
+    size: {
+      width: number,
+      height: number,
+    },
+    origin: {
+      x: number,
+      y: number,
+    },
+  },
+};
 type Email = {
   address?: string,
   body?: string,
@@ -247,7 +276,6 @@ type Rect = {
 
 type PropsType = typeof View.props & {
   zoom?: number,
-  useNativeZoom?:boolean,
   maxZoom?: number,
   ratio?: string,
   focusDepth?: number,
@@ -276,6 +304,7 @@ type PropsType = typeof View.props & {
   autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
+  onHandDetected?: ({ hand: TrackedHandFeature }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   keepAudioSession?: boolean,
@@ -390,7 +419,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
   static propTypes = {
     ...ViewPropTypes,
     zoom: PropTypes.number,
-    useNativeZoom:PropTypes.bool,
     maxZoom: PropTypes.number,
     ratio: PropTypes.string,
     focusDepth: PropTypes.number,
@@ -406,6 +434,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     onRecordingEnd: PropTypes.func,
     onGoogleVisionBarcodesDetected: PropTypes.func,
     onFacesDetected: PropTypes.func,
+    onHandDetected: PropTypes.func,
     onTextRecognized: PropTypes.func,
     onSubjectAreaChanged: PropTypes.func,
     trackingEnabled: PropTypes.bool,
@@ -441,7 +470,6 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
   static defaultProps: Object = {
     zoom: 0,
-    useNativeZoom:false,
     maxZoom: 0,
     ratio: '4:3',
     focusDepth: 0,
@@ -811,6 +839,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
             )}
             onBarCodeRead={this._onObjectDetected(this.props.onBarCodeRead)}
             onFacesDetected={this._onObjectDetected(this.props.onFacesDetected)}
+            onHandDetected={this._onObjectDetected(this.props.onHandDetected)}
             onTextRecognized={this._onObjectDetected(this.props.onTextRecognized)}
             onPictureSaved={this._onPictureSaved}
             onSubjectAreaChanged={this._onSubjectAreaChanged}
@@ -838,6 +867,10 @@ export default class Camera extends React.Component<PropsType, StateType> {
 
     if (props.onFacesDetected) {
       newProps.faceDetectorEnabled = true;
+    }
+
+    if (props.onHandDetected) {
+      newProps.handDetectorEnabled = true;
     }
 
     if (props.onTextRecognized) {

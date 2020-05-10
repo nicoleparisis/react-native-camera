@@ -20,8 +20,10 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
     EVENT_ON_MOUNT_ERROR("onMountError"),
     EVENT_ON_BAR_CODE_READ("onBarCodeRead"),
     EVENT_ON_FACES_DETECTED("onFacesDetected"),
+    EVENT_ON_HAND_DETECTED("onHandDetected"),
     EVENT_ON_BARCODES_DETECTED("onGoogleVisionBarcodesDetected"),
     EVENT_ON_FACE_DETECTION_ERROR("onFaceDetectionError"),
+    EVENT_ON_HAND_DETECTION_ERROR("onHandDetectionError"),
     EVENT_ON_BARCODE_DETECTION_ERROR("onGoogleVisionBarcodeDetectionError"),
     EVENT_ON_TEXT_RECOGNIZED("onTextRecognized"),
     EVENT_ON_PICTURE_TAKEN("onPictureTaken"),
@@ -179,6 +181,27 @@ public class CameraViewManager extends ViewGroupManager<RNCameraView> {
   public void setFaceDetectionClassifications(RNCameraView view, int classifications) {
     view.setFaceDetectionClassifications(classifications);
   }
+
+  @ReactProp(name = "handDetectorEnabled")
+  public void setHandDetecting(RNCameraView view, boolean handDetectorEnabled) {
+    view.setShouldDetectHand(handDetectorEnabled);
+  }
+
+  @ReactProp(name = "handDetectionMode")
+  public void setHandDetectionMode(RNCameraView view, int mode) {
+    view.setHandDetectionMode(mode);
+  }
+
+  @ReactProp(name = "handDetectionLandmarks")
+  public void setHandDetectionLandmarks(RNCameraView view, int landmarks) {
+    view.setHandDetectionLandmarks(landmarks);
+  }
+
+  @ReactProp(name = "handDetectionClassifications")
+  public void setHandDetectionClassifications(RNCameraView view, int classifications) {
+    view.setHandDetectionClassifications(classifications);
+  }
+
 
   @ReactProp(name = "trackingEnabled")
   public void setTracking(RNCameraView view, boolean trackingEnabled) {
