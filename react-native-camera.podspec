@@ -58,4 +58,5 @@ Pod::Spec.new do |s|
 
   s.dependency 'React'
   s.dependency 'OpenCV2', '~> 4.3'
+  
 end
