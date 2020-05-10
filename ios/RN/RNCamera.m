@@ -2308,6 +2308,7 @@ BOOL _sessionInterrupted = NO;
         }
         // find hand
         if (canSubmitForHandDetection) {
+             NSLog(@"submit for hand detection");
             _finishedDetectingHand = false;
             self.startHand = [NSDate date];
             [self.handDetector findHandInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * hands) {

@@ -870,6 +870,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     }
 
     if (props.onHandDetected) {
+      console.log("hand")
       newProps.handDetectorEnabled = true;
     }
 
