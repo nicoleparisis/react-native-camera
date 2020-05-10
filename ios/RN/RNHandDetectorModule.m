@@ -39,13 +39,13 @@ RCT_EXPORT_MODULE(RNHandDetector);
     return [HandDetectorManager constants];
 }
 
-RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
+RCT_EXPORT_METHOD(detectHand:(nonnull NSDictionary *)options
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
     NSString *uri = options[@"uri"];
     if (uri == nil) {
-        reject(@"E_FACE_DETECTION_FAILED", @"You must define a URI.", nil);
+        reject(@"E_HAND_DETECTION_FAILED", @"You must define a URI.", nil);
         return;
     }
     
@@ -54,10 +54,10 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
     
     @try {
         if (![fileManager fileExistsAtPath:path]) {
-            reject(@"E_FACE_DETECTION_FAILED", [NSString stringWithFormat:@"The file does not exist. Given path: `%@`.", path], nil);
+            reject(@"E_HAND_DETECTION_FAILED", [NSString stringWithFormat:@"The file does not exist. Given path: `%@`.", path], nil);
             return;
         }
-        FIRVisionFaceDetectorOptions *newOptions = [[FIRVisionFaceDetectorOptions alloc] init];
+        FIRVisionHandDetectorOptions *newOptions = [[FIRVisionHandDetectorOptions alloc] init];
         if (options[kDetectLandmarksOptionName]) {
             newOptions.landmarkMode = [options[kDetectLandmarksOptionName] integerValue];
         }
@@ -87,7 +87,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
                         });
             }];
     } @catch (NSException *exception) {
-        reject(@"E_FACE_DETECTION_FAILED", [exception description], nil);
+        reject(@"E_HAND_DETECTION_FAILED", [exception description], nil);
     }
 }
 
@@ -117,7 +117,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
 
 @end
 #else
-@implementation RNFaceDetectorModuleMLKit
+@implementation RNHandDetectorModule
 
 @synthesize bridge = _bridge;
 
@@ -136,7 +136,7 @@ RCT_EXPORT_METHOD(detectFaces:(nonnull NSDictionary *)options
     return @{};
 }
 
-RCT_EXPORT_MODULE(RNFaceDetector);
+RCT_EXPORT_MODULE(RNHandDetector);
 
 @end
 #endif

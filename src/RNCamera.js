@@ -304,7 +304,7 @@ type PropsType = typeof View.props & {
   autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
   onFacesDetected?: ({ faces: Array<TrackedFaceFeature> }) => void,
-  onHandDetected?: ({ hand: TrackedHandFeature }) => void,
+  onHandDetected?: ({ hands: Array<TrackedHandFeature> }) => void,
   onTextRecognized?: ({ textBlocks: Array<TrackedTextFeature> }) => void,
   captureAudio?: boolean,
   keepAudioSession?: boolean,

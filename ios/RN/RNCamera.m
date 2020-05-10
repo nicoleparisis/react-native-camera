@@ -2323,8 +2323,8 @@ BOOL _sessionInterrupted = NO;
         if (canSubmitForHandDetection) {
             _finishedDetectingHand = false;
             self.startHand = [NSDate date];
-            [self.handDetector findHandInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * hand) {
-                NSDictionary *eventHand = @{@"type" : @"hand", @"fingers" : hand};
+            [self.handDetector findHandInFrame:image scaleX:scaleX scaleY:scaleY completed:^(NSArray * hands) {
+                NSDictionary *eventHand = @{@"type" : @"hand", @"hands" : hands};
                 [self onHandDetected:eventHand];
                 self.finishedDetectingHand = true;
             }];

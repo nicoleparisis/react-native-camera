@@ -1,5 +1,6 @@
 #import "HandDetectorManager.h"
 #import <React/RCTConvert.h>
+#import <React/RCTLog.h>
 
 @interface HandDetectorManager ()
 @property(nonatomic, assign) float scaleX;
@@ -11,7 +12,7 @@
 - (instancetype)init 
 {
   if (self = [super init]) {
-    //self.options = [[FIRVisionFaceDetectorOptions alloc] init];
+    //self.options = [[FIRVisionHandDetectorOptions alloc] init];
    
   }
   return self;
@@ -26,16 +27,16 @@
 {
     return @{
              @"Mode" : @{
-                     @"fast" : @(RNFaceDetectionFastMode),
-                     @"accurate" : @(RNFaceDetectionAccurateMode)
+                     @"fast" : @(RNHandDetectionFastMode),
+                     @"accurate" : @(RNHandDetectionAccurateMode)
                      },
              @"Landmarks" : @{
-                     @"all" : @(RNFaceDetectAllLandmarks),
-                     @"none" : @(RNFaceDetectNoLandmarks)
+                     @"all" : @(RNHandDetectAllLandmarks),
+                     @"none" : @(RNHandDetectNoLandmarks)
                      },
              @"Classifications" : @{
-                     @"all" : @(RNFaceRunAllClassifications),
-                     @"none" : @(RNFaceRunNoClassifications)
+                     @"all" : @(RNHandRunAllClassifications),
+                     @"none" : @(RNHandRunNoClassifications)
                      }
              };
 }
@@ -54,48 +55,6 @@
   }
 }
 
-- (void)setLandmarksMode:(id)json queue:(dispatch_queue_t)sessionQueue 
-{
-    long requestedValue = [RCTConvert NSInteger:json];
-    if (requestedValue != self.options.landmarkMode) {
-        if (sessionQueue) {
-            dispatch_async(sessionQueue, ^{
-                self.options.landmarkMode = requestedValue;
-                self.faceRecognizer =
-                [self.vision handDetectorWithOptions:self.options];
-            });
-        }
-    }
-}
-
-- (void)setPerformanceMode:(id)json queue:(dispatch_queue_t)sessionQueue 
-{
-    long requestedValue = [RCTConvert NSInteger:json];
-    if (requestedValue != self.options.performanceMode) {
-        if (sessionQueue) {
-            dispatch_async(sessionQueue, ^{
-                self.options.performanceMode = requestedValue;
-                self.faceRecognizer =
-                [self.vision handDetectorWithOptions:self.options];
-            });
-        }
-    }
-}
-
-- (void)setClassificationMode:(id)json queue:(dispatch_queue_t)sessionQueue 
-{
-    long requestedValue = [RCTConvert NSInteger:json];
-    if (requestedValue != self.options.classificationMode) {
-        if (sessionQueue) {
-            dispatch_async(sessionQueue, ^{
-                self.options.classificationMode = requestedValue;
-                self.faceRecognizer =
-                [self.vision handDetectorWithOptions:self.options];
-            });
-        }
-    }
-}
-
 - (void)findHandInFrame:(UIImage *)uiImage
                   scaleX:(float)scaleX
                   scaleY:(float)scaleY
@@ -103,11 +62,12 @@
 {
     self.scaleX = scaleX;
     self.scaleY = scaleY;
-    FIRVisionImage *image = [[FIRVisionImage alloc] initWithImage:uiImage];
+    NSLog(@"Find hand in frame");
+    cv::Mat matImage = [self convertUIImageToCVMat:uiImage];
     NSMutableArray *emptyResult = [[NSMutableArray alloc] init];
-    [_faceRecognizer
-     processImage:image
-     completion:^(NSArray<FIRVisionFace *> *hand, NSError *error) {
+    [_handRecognizer
+     processImage:matImage
+     completion:^(NSArray<FIRVisionHand *> *hand, NSError *error) {
          if (error != nil || hand == nil) {
              completed(emptyResult);
          } else {
@@ -116,10 +76,33 @@
      }];
 }
 
+
+- (cv::Mat)convertUIImageToCVMat:(UIImage *)image {
+  CGColorSpaceRef colorSpace = CGImageGetColorSpace(image.CGImage);
+  CGFloat cols = image.size.width;
+  CGFloat rows = image.size.height;
+  
+  cv::Mat cvMat(rows, cols, CV_8UC4); // 8 bits per component, 4 channels (color channels + alpha)
+  
+  CGContextRef contextRef = CGBitmapContextCreate(cvMat.data,                 // Pointer to  data
+                                                  cols,                       // Width of bitmap
+                                                  rows,                       // Height of bitmap
+                                                  8,                          // Bits per component
+                                                  cvMat.step[0],              // Bytes per row
+                                                  colorSpace,                 // Colorspace
+                                                  kCGImageAlphaNoneSkipLast |
+                                                  kCGBitmapByteOrderDefault); // Bitmap info flags
+  
+  CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), image.CGImage);
+  CGContextRelease(contextRef);
+  
+  return cvMat;
+}
+
 - (NSArray *)processHand:(NSArray *)hand 
 {
     NSMutableArray *result = [[NSMutableArray alloc] init];
-    for (FIRVisionFace *face in hand) {
+    for (FIRVisionHand *face in hand) {
         NSMutableDictionary *resultDict =
         [[NSMutableDictionary alloc] initWithCapacity:20];
         // Boundaries of face in image
@@ -144,71 +127,71 @@
         // If landmark detection was enabled (mouth, ears, eyes, cheeks, and
         // nose available):
         /** Midpoint of the left ear tip and left ear lobe. */
-        FIRVisionFaceLandmark *leftEar =
-        [face landmarkOfType:FIRFaceLandmarkTypeLeftEar];
+        FIRVisionHandLandmark *leftEar =
+        [face landmarkOfType:FIRHandLandmarkTypeLeftEar];
         if (leftEar != nil) {
             [resultDict setObject:[self processPoint:leftEar.position]
                            forKey:@"leftEarPosition"];
         }
         /** Midpoint of the right ear tip and right ear lobe. */
-        FIRVisionFaceLandmark *rightEar =
-        [face landmarkOfType:FIRFaceLandmarkTypeRightEar];
+        FIRVisionHandLandmark *rightEar =
+        [face landmarkOfType:FIRHandLandmarkTypeRightEar];
         if (rightEar != nil) {
             [resultDict setObject:[self processPoint:rightEar.position]
                            forKey:@"rightEarPosition"];
         }
         /** Center of the bottom lip. */
-        FIRVisionFaceLandmark *mouthBottom =
-        [face landmarkOfType:FIRFaceLandmarkTypeMouthBottom];
+        FIRVisionHandLandmark *mouthBottom =
+        [face landmarkOfType:FIRHandLandmarkTypeMouthBottom];
         if (mouthBottom != nil) {
             [resultDict setObject:[self processPoint:mouthBottom.position]
                            forKey:@"bottomMouthPosition"];
         }
         /** Right corner of the mouth */
-        FIRVisionFaceLandmark *mouthRight =
-        [face landmarkOfType:FIRFaceLandmarkTypeMouthRight];
+        FIRVisionHandLandmark *mouthRight =
+        [face landmarkOfType:FIRHandLandmarkTypeMouthRight];
         if (mouthRight != nil) {
             [resultDict setObject:[self processPoint:mouthRight.position]
                            forKey:@"rightMouthPosition"];
         }
         /** Left corner of the mouth */
-        FIRVisionFaceLandmark *mouthLeft =
-        [face landmarkOfType:FIRFaceLandmarkTypeMouthLeft];
+        FIRVisionHandLandmark *mouthLeft =
+        [face landmarkOfType:FIRHandLandmarkTypeMouthLeft];
         if (mouthLeft != nil) {
             [resultDict setObject:[self processPoint:mouthLeft.position]
                            forKey:@"leftMouthPosition"];
         }
         /** Left eye. */
-        FIRVisionFaceLandmark *eyeLeft =
-        [face landmarkOfType:FIRFaceLandmarkTypeLeftEye];
+        FIRVisionHandLandmark *eyeLeft =
+        [face landmarkOfType:FIRHandLandmarkTypeLeftEye];
         if (eyeLeft != nil) {
             [resultDict setObject:[self processPoint:eyeLeft.position]
                            forKey:@"leftEyePosition"];
         }
         /** Right eye. */
-        FIRVisionFaceLandmark *eyeRight =
-        [face landmarkOfType:FIRFaceLandmarkTypeRightEye];
+        FIRVisionHandLandmark *eyeRight =
+        [face landmarkOfType:FIRHandLandmarkTypeRightEye];
         if (eyeRight != nil) {
             [resultDict setObject:[self processPoint:eyeRight.position]
                            forKey:@"rightEyePosition"];
         }
         /** Left cheek. */
-        FIRVisionFaceLandmark *cheekLeft =
-        [face landmarkOfType:FIRFaceLandmarkTypeLeftCheek];
+        FIRVisionHandLandmark *cheekLeft =
+        [face landmarkOfType:FIRHandLandmarkTypeLeftCheek];
         if (cheekLeft != nil) {
             [resultDict setObject:[self processPoint:cheekLeft.position]
                            forKey:@"leftCheekPosition"];
         }
         /** Right cheek. */
-        FIRVisionFaceLandmark *cheekRight =
-        [face landmarkOfType:FIRFaceLandmarkTypeRightCheek];
+        FIRVisionHandLandmark *cheekRight =
+        [face landmarkOfType:FIRHandLandmarkTypeRightCheek];
         if (cheekRight != nil) {
             [resultDict setObject:[self processPoint:cheekRight.position]
                            forKey:@"rightCheekPosition"];
         }
         /** Midpoint between the nostrils where the nose meets the face. */
-        FIRVisionFaceLandmark *noseBase =
-        [face landmarkOfType:FIRFaceLandmarkTypeNoseBase];
+        FIRVisionHandLandmark *noseBase =
+        [face landmarkOfType:FIRHandLandmarkTypeNoseBase];
         if (noseBase != nil) {
             [resultDict setObject:[self processPoint:noseBase.position]
                            forKey:@"noseBasePosition"];
@@ -281,8 +264,8 @@
                        scaleY:(float)scaleY
                        completed:(void (^)(NSArray *result))completed;
 {
-    NSLog(@"FaceDetector not installed, stub used!");
-    NSArray *features = @[ @"Error, Face Detector not installed" ];
+    NSLog(@"HandDetector not installed, stub used!");
+    NSArray *features = @[ @"Error, Hand Detector not installed" ];
     return features;
 }
 

@@ -218,7 +218,7 @@ export interface RNCameraProps {
 
   // -- HAND DETECTION PROPS
 
-  onHandDetected?(response: { hand: Hand[] }): void;
+  onHandDetected?(response: { hands: Hand[] }): void;
   onHandDetectionError?(response: { isOperational: boolean }): void;
   handDetectionMode?: keyof HandDetectionMode;
   handDetectionLandmarks?: keyof HandDetectionLandmarks;

@@ -49,7 +49,7 @@ export default class HandDetector {
     Classifications: HandDetectorModule.Classifications,
   };
 
-  static detectHandsAsync(uri: string, options: ?DetectionOptions): Promise<Array<HandFeature>> {
+  static detectHandAsync(uri: string, options: ?DetectionOptions): Promise<Array<HandFeature>> {
     return HandDetectorModule.detectHand({ ...options, uri });
   }
 }
