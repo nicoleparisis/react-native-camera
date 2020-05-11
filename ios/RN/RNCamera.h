@@ -3,10 +3,7 @@
 #import <React/RCTBridgeModule.h>
 #import <UIKit/UIKit.h>
 
-#import "FaceDetectorManagerMlkit.h"
 #import "HandDetectorManager.h"
-#import "BarcodeDetectorManagerMlkit.h"
-#import "TextDetectorManager.h"
 
 @class RNCamera;
 
@@ -24,8 +21,6 @@
 @property(nonatomic, strong) AVCaptureVideoDataOutput *videoDataOutput;
 @property(nonatomic, strong) AVCaptureVideoPreviewLayer *previewLayer;
 @property(nonatomic, strong) id runtimeErrorHandlingObserver;
-@property(nonatomic, strong) NSArray *barCodeTypes;
-@property(nonatomic, strong) NSArray *googleVisionBarcodeTypes;
 
 @property(nonatomic, assign) NSInteger presetCamera;
 @property(nonatomic, copy) NSString *cameraId; // copy required for strings/pointers
@@ -40,14 +35,9 @@
 @property(assign, nonatomic) float exposureIsoMin;
 @property(assign, nonatomic) float exposureIsoMax;
 @property(assign, nonatomic) AVCaptureSessionPreset pictureSize;
-@property(nonatomic, assign) BOOL isReadingBarCodes;
 @property(nonatomic, assign) BOOL isRecordingInterrupted;
-@property(nonatomic, assign) BOOL isDetectingFaces;
 @property(nonatomic, assign) BOOL isDetectingHand;
-@property(nonatomic, assign) BOOL canReadText;
-@property(nonatomic, assign) BOOL canDetectFaces;
 @property(nonatomic, assign) BOOL canDetectHand;
-@property(nonatomic, assign) BOOL canDetectBarcodes;
 @property(nonatomic, assign) BOOL captureAudio;
 @property(nonatomic, assign) BOOL keepAudioSession;
 @property(nonatomic, assign) BOOL useNativeZoom;
@@ -73,12 +63,8 @@
 - (void)updateCaptureAudio;
 // Face Detection props
 - (void)updateTrackingEnabled:(id)requestedTracking;
-- (void)updateFaceDetectionMode:(id)requestedMode;
-- (void)updateFaceDetectionLandmarks:(id)requestedLandmarks;
-- (void)updateFaceDetectionClassifications:(id)requestedClassifications;
+
 - (void)updateRectOfInterest;
-// google Barcode props
-- (void)updateGoogleVisionBarcodeType:(id)requestedTypes;
 
 - (void)takePicture:(NSDictionary *)options
             resolve:(RCTPromiseResolveBlock)resolve
@@ -96,22 +82,17 @@
 - (void)resumePreview;
 - (void)pausePreview;
 - (void)setupOrDisablePinchZoom;
-- (void)setupOrDisableBarcodeScanner;
-- (void)setupOrDisableTextDetector;
-- (void)setupOrDisableFaceDetector;
+
 - (void)setupOrDisableHandDetector;
-- (void)setupOrDisableBarcodeDetector;
 - (void)onReady:(NSDictionary *)event;
 - (void)onMountingError:(NSDictionary *)event;
 - (void)onCodeRead:(NSDictionary *)event;
-- (void)onFacesDetected:(NSDictionary *)event;
+
 - (void)onHandDetected:(NSDictionary *)event;
 - (void)onPictureTaken:(NSDictionary *)event;
 - (void)onPictureSaved:(NSDictionary *)event;
 - (void)onRecordingStart:(NSDictionary *)event;
 - (void)onRecordingEnd:(NSDictionary *)event;
-- (void)onText:(NSDictionary *)event;
-- (void)onBarcodesDetected:(NSDictionary *)event;
 - (bool)isRecording;
 - (void)onSubjectAreaChanged:(NSDictionary *)event;
 
